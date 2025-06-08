@@ -13,18 +13,35 @@ import {
 export default function App() {
   const [userInput, setUserInput] = useState("");
   const [tasksList, setTasksList] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [taskSelected, setTaskSelected] = useState({});
 
   //console.log("Valor de userInput", userInput);
-  console.log("Valor de tasksList", tasksList);
+  //console.log("Valor de tasksList", tasksList);
+  //console.log("Valor de taskSelected", taskSelected);
+
+  const handleAddTask = () => {
+    if (userInput != "") {
+      setTasksList([...tasksList, { id: Math.random(), value: userInput }]),
+        setUserInput("");
+    }
+  };
 
   const deleteTask = (id) => {
     setTasksList(tasksList.filter((task) => task.id !== id));
+    setIsModalVisible(!isModalVisible);
+  };
+
+  const handleDeleteTask = (item) => {
+    setIsModalVisible(!isModalVisible);
+    setTaskSelected(item);
   };
 
   const renderTaskItem = ({ item }) => (
     <View style={styles.taskContainer}>
       <Text>{item.value}</Text>
-      <Button title="X" onPress={() => deleteTask(item.id)} />
+      {/* <Button title="X" onPress={() => deleteTask(item.id)} /> */}
+      <Button title="X" onPress={() => handleDeleteTask(item)} />
     </View>
   );
 
@@ -35,16 +52,9 @@ export default function App() {
         <TextInput
           style={styles.userInput}
           onChangeText={(text) => setUserInput(text)}
+          value={userInput}
         />
-        <Button
-          title="+"
-          onPress={() =>
-            setTasksList([
-              ...tasksList,
-              { id: Math.random(), value: userInput },
-            ])
-          }
-        />
+        <Button title="+" onPress={handleAddTask} />
       </View>
       <View style={styles.taskContainer}>
         {/* {tasksList.map((task) => (
@@ -58,6 +68,21 @@ export default function App() {
           keyExtractor={(item) => item.id}
         />
       </View>
+      <Modal visible={isModalVisible} animationType="slide">
+        <Text>Estas seguro de eliminar? {taskSelected.value} </Text>
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Cancelar"
+            color="ccc"
+            onPress={() => setIsModalVisible(!isModalVisible)}
+          />
+          <Button
+            title="Si, Eliminar"
+            color="red"
+            onPress={() => deleteTask(taskSelected.id)}
+          />
+        </View>
+      </Modal>
       <StatusBar style="auto" />
     </View>
   );
@@ -87,5 +112,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 4,
     marginVertical: 8,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
   },
 });
