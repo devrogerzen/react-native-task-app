@@ -1,14 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import {
-  Button,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  Modal,
-} from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
+import TaskInput from "./src/components/TaskInput";
+import TaskList from "./src/components/TaskList";
+import ModalDelete from "./src/components/ModalDelete";
 
 export default function App() {
   const [userInput, setUserInput] = useState("");
@@ -21,7 +16,7 @@ export default function App() {
   //console.log("Valor de taskSelected", taskSelected);
 
   const handleAddTask = () => {
-    if (userInput != "") {
+    if (userInput !== "") {
       setTasksList([...tasksList, { id: Math.random(), value: userInput }]),
         setUserInput("");
     }
@@ -37,52 +32,36 @@ export default function App() {
     setTaskSelected(item);
   };
 
-  const renderTaskItem = ({ item }) => (
-    <View style={styles.taskContainer}>
-      <Text>{item.value}</Text>
-      {/* <Button title="X" onPress={() => deleteTask(item.id)} /> */}
-      <Button title="X" onPress={() => handleDeleteTask(item)} />
+const renderTaskItem = ({ item }) => (
+  <View style={styles.taskItem}>
+    <Text style={styles.taskText}>{item.value}</Text>
+    <View style={styles.deleteButton}>
+      <Button title="✕" color="#ff4757" onPress={() => handleDeleteTask(item)} />
     </View>
-  );
+  </View>
+);
 
-  return (
+ return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 24 }}>App de Tareas</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.userInput}
-          onChangeText={(text) => setUserInput(text)}
-          value={userInput}
-        />
-        <Button title="+" onPress={handleAddTask} />
+      <View style={styles.header}>
+        <Text style={styles.title}>📝 Mis Tareas</Text>
       </View>
-      <View style={styles.taskContainer}>
-        {/* {tasksList.map((task) => (
-          <Text key={task.id}>
-            {task.value}
-          </Text>
-        ))}  */}
-        <FlatList
-          data={tasksList}
-          renderItem={renderTaskItem}
-          keyExtractor={(item) => item.id}
+      
+      <View style={styles.content}>
+        <TaskInput
+          userInput={userInput}
+          setUserInput={setUserInput}
+          handleAddTask={handleAddTask}
         />
+        <TaskList tasksList={tasksList} renderTaskItem={renderTaskItem} />
       </View>
-      <Modal visible={isModalVisible} animationType="slide">
-        <Text>Estas seguro de eliminar? {taskSelected.value} </Text>
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Cancelar"
-            color="ccc"
-            onPress={() => setIsModalVisible(!isModalVisible)}
-          />
-          <Button
-            title="Si, Eliminar"
-            color="red"
-            onPress={() => deleteTask(taskSelected.id)}
-          />
-        </View>
-      </Modal>
+
+      <ModalDelete
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+        taskSelected={taskSelected}
+        deleteTask={deleteTask}
+      />
       <StatusBar style="auto" />
     </View>
   );
@@ -91,31 +70,54 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e0e0e0",
-    alignItems: "center",
-    justifyContent: "flex-start",
+    backgroundColor: "#f5f5f5",
+  },
+  header: {
+    backgroundColor: "#4834d4",
     paddingTop: 50,
-  },
-  userInput: {
-    borderBottomColor: "#ccc",
-    borderBottomWidth: 1,
-    width: "70%",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  taskContainer: {
-    width: "100%",
-    padding: 20,
+    paddingBottom: 20,
     alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  buttonContainer: {
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  taskItem: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 20,
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    borderLeftWidth: 4,
+    borderLeftColor: "#4834d4",
+  },
+  taskText: {
+    fontSize: 16,
+    flex: 1,
+    color: "#333",
+    marginRight: 10,
+  },
+  deleteButton: {
+    borderRadius: 15,
+    overflow: "hidden",
+    minWidth: 35,
   },
 });
